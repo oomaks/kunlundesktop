@@ -60,7 +60,7 @@ apt-get update
 apt-get install docker
 docker pull postgres:9.6
 # 此处应将`123456`修改为自己设定的密码，此密码为数据库管理员密码
-docker run --name postgres-for-electron-release-server -e POSTGRES_PASSWORD=123456 -p 5431:5432 -d postgres:9.6
+docker run --name postgres-for-electron-release-server -e POSTGRES_PASSWORD=123456 -p 5431:5432 -d postgres:9.6 -c "timezong=Asia/Shanghai" -c "log_timezone=Asia/Shanghai"
 ```
 在本地操作系统安装`Postgres 9.6+`并打开`pgAdmin`连接到Docker数据库，用户名为`postgres`,密码为`123456`，并执行以下SQL:
 ```SQL
@@ -135,6 +135,18 @@ BEGIN
 END;
 $$;
 ```
-
-
+## 4. 启动`electron-release-server`的`Docker`容器
+```Bash
+docker build -t maks/electron-release-server .
+docker run --name electron-release-server -p 81:81 -d maks/electron-release-server
+docker log -t electron-release-server # 查看是否启动成功
+docker stop electron-release-server
+docker rm electron-release-server
+docker rmi makselectron-release-server
+vi Dockfile # 将最后一行 CMD [ "npm", "start"] 改为 CMD [ "npm", "start", "--prod"]
+docker build -t maks/electron-release-server .
+docker run --name electron-release-server -p 81:81 -d maks/electron-release-server
+docker log -t electron-release-server # 查看是否启动成功
+```
+最后通过http://nocknock.cn:81 方位服务器，及服务器所在域名和端口号
 
